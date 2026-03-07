@@ -1,0 +1,11 @@
+{
+  "servers": {
+    "copilot-mem": {
+      "type": "stdio",
+      "command": "C:\\Users\\rarame\\AppData\\Local\\miniconda3\\python",
+      "args": [
+        "C:\\Users\\rarame\\source\\repos\\copilot-mem\\src\\server\\mcp_server.py"
+      ]
+    }
+  }
+}
