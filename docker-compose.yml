@@ -1,0 +1,47 @@
+services:
+
+  # ── CLI: index, search, classify, context ──────────────────────────────────
+  cli:
+    build: .
+    image: copilot-mem:latest
+    volumes:
+      - ${VSCODE_USER_DIR}:/vscode-data:ro   # host VS Code User dir (read-only)
+      - copilot-mem-db:/data                 # persistent SQLite database
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    # Usage: docker compose run --rm cli <command>
+    # e.g.:  docker compose run --rm cli index
+    #        docker compose run --rm cli search "NovaCompute"
+    #        docker compose run --rm cli classify
+    profiles: [cli]
+
+  # ── MCP server: stdio transport ────────────────────────────────────────────
+  mcp-server:
+    build: .
+    image: copilot-mem:latest
+    entrypoint: ["python", "run_server.py"]
+    stdin_open: true   # keep stdin open for MCP stdio transport
+    tty: false
+    volumes:
+      - ${VSCODE_USER_DIR}:/vscode-data:ro
+      - copilot-mem-db:/data
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    profiles: [mcp]
+
+  # ── Watcher: auto-index on file changes ────────────────────────────────────
+  watcher:
+    build: .
+    image: copilot-mem:latest
+    entrypoint: ["python", "src/watcher/watcher.py"]
+    restart: unless-stopped
+    volumes:
+      - ${VSCODE_USER_DIR}:/vscode-data:ro
+      - copilot-mem-db:/data
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    profiles: [watcher]
+
+volumes:
+  copilot-mem-db:
+    driver: local
