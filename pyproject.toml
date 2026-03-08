@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "copilot-mem"
+version = "0.1.0"
+description = "Searchable index of GitHub Copilot chat sessions with LLM-enhanced classification"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["copilot", "memory", "mcp", "llm", "indexer"]
+
+dependencies = [
+    "click>=8.0",
+    "rich>=13.0",
+    "watchdog>=4.0",
+    "mcp>=1.0",
+    "anthropic>=0.39.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]
+
+[project.scripts]
+copilot-mem = "src.cli:cli"
+copilot-mem-server = "run_server:main_sync"
+
+[tool.hatch.build.targets.wheel]
+# Editable install adds the project root to sys.path, making both
+# `import config` and `from src.cli import cli` resolvable.
+packages = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+]

@@ -13,5 +13,11 @@ sys.path.insert(0, str(repo_root))
 from src.server.mcp_server import main
 import asyncio
 
-if __name__ == "__main__":
+
+def main_sync():
+    """Synchronous entry point for the copilot-mem-server script."""
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    main_sync()
