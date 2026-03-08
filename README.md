@@ -8,13 +8,24 @@ Indexes all your VS Code Copilot chat history into a local SQLite database, clas
 
 ## Quick Start
 
+### Option A — Docker (any platform, no Python needed)
+
+```bash
+git clone https://github.com/RamananVr/githubCopilotMemPreference.git
+cd githubCopilotMemPreference
+cp .env.example .env          # then edit VSCODE_USER_DIR
+docker compose run --rm cli index --classify
+```
+
+### Option B — Local (Windows, uv)
+
 ```bat
 git clone https://github.com/RamananVr/githubCopilotMemPreference.git
 cd githubCopilotMemPreference
 setup.bat
 ```
 
-That's it. The setup script will:
+The setup script will:
 1. Install [uv](https://docs.astral.sh/uv/) if missing
 2. Create a virtual environment and install all dependencies
 3. Copy `.mcp.json.example` → `.mcp.json`
@@ -25,17 +36,62 @@ That's it. The setup script will:
 
 ## Requirements
 
-| Requirement | Notes |
-|-------------|-------|
-| Python 3.10+ | Detected automatically by uv |
-| VS Code + GitHub Copilot | Sessions stored in `%APPDATA%\Code\User\...` |
-| `ANTHROPIC_API_KEY` | Optional — enables LLM classification |
+| Requirement | Option A (Docker) | Option B (Local) |
+|-------------|:-----------------:|:----------------:|
+| Docker + Compose | ✅ required | — |
+| Python 3.13+ | — | ✅ auto-managed by uv |
+| VS Code + GitHub Copilot | ✅ | ✅ |
+| `ANTHROPIC_API_KEY` | optional | optional |
+
+---
+
+## Docker Usage
+
+### Setup
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env`:
+```env
+VSCODE_USER_DIR=C:\Users\<you>\AppData\Roaming\Code\User   # Windows
+# VSCODE_USER_DIR=/Users/<you>/Library/Application Support/Code/User  # macOS
+# VSCODE_USER_DIR=/home/<you>/.config/Code/User                       # Linux
+ANTHROPIC_API_KEY=sk-ant-...   # optional
+```
+
+### CLI (one-off commands)
+
+```bash
+docker compose run --rm cli index
+docker compose run --rm cli index --classify
+docker compose run --rm cli search "authentication"
+docker compose run --rm cli context
+```
+
+### MCP Server (stdio)
+
+```bash
+docker compose --profile mcp up mcp-server
+```
+
+### Watcher (background auto-index)
+
+```bash
+docker compose --profile watcher up -d watcher
+docker compose logs -f watcher   # tail logs
+```
 
 ---
 
 ## CLI Reference
 
-```
+```bash
+# Docker
+docker compose run --rm cli <command>
+
+# Local
 uv run copilot-mem <command>
 ```
 
@@ -98,13 +154,19 @@ claude mcp add copilot-mem -- python run_server.py
 
 ## Auto-Indexing
 
-### File watcher (real-time)
+### Docker (recommended — cross-platform)
+
+```bash
+docker compose --profile watcher up -d watcher
+```
+
+### Local — File watcher (real-time)
 
 ```bat
 uv run python src/watcher/watcher.py
 ```
 
-### Windows Task Scheduler (recommended)
+### Local — Windows Task Scheduler
 
 Schedule `uv run copilot-mem index --classify` to run hourly — lower overhead than a persistent watcher.
 
@@ -148,9 +210,12 @@ copilot-mem/
 │   ├── server/         # MCP server (stdio)
 │   ├── watcher/        # File system watcher
 │   └── cli.py          # CLI entry point
+├── Dockerfile          # Multi-stage build (uv builder → slim runtime)
+├── docker-compose.yml  # cli / mcp-server / watcher profiles
+├── .env.example        # Docker env template (copy to .env)
 ├── run_server.py       # MCP server launcher (self-locating)
-├── config.py           # Paths and constants
-├── pyproject.toml      # Dependencies (uv)
+├── config.py           # Paths and constants (env var overrides)
+├── pyproject.toml      # Dependencies (uv + hatchling)
 ├── setup.bat           # One-command Windows setup
 └── .mcp.json.example   # Portable MCP config template
 ```
