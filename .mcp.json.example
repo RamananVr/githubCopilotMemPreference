@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "copilot-mem": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["${workspaceFolder}/run_server.py"]
+    }
+  }
+}

@@ -9,3 +9,6 @@ dist/
 build/
 .venv/
 venv/
+
+# MCP config contains local paths — copy .mcp.json.example instead
+.mcp.json
