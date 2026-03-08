@@ -7,7 +7,7 @@ name = "copilot-mem"
 version = "0.1.0"
 description = "Searchable index of GitHub Copilot chat sessions with LLM-enhanced classification"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = { text = "MIT" }
 keywords = ["copilot", "memory", "mcp", "llm", "indexer"]
 
